@@ -14,7 +14,7 @@ export CXX=clang++
 
 export CPATH=~/local/include
 
-if [[ ! -e FindLibVar.cmake ]]
+if [ ! -e FindLibVar.cmake ]
 then
     wget https://github.com/pgarner/libvar/raw/master/cmake/FindLibVar.cmake
 fi
