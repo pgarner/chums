@@ -136,7 +136,7 @@ var VCard::read(const char* iFile)
     // Open the file
     std::ifstream is(iFile);
     if (is.fail())
-        std::cout << "VCard::read: Open failed" << std::endl;
+        throw std::runtime_error("VCard::read: Open failed");
 
     // Read it.  vCard lines that begin with a space are continuations of the
     // previous line, at least in the later versions, so deal with that before

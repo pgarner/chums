@@ -15,9 +15,12 @@ int main(int argc, char** argv)
 {
     vfile mscontact("wab");
     var contact = mscontact.read("example.contact");
-    //cout << contact << endl;
+
     vfile vcard("vcf");
     var card = vcard.read("example.vcf");
+
+    vfile ldif("ldif");
+    var ldap = ldif.read("example.ldif");
     
     return 0;
 }

@@ -36,3 +36,10 @@ set_target_properties(vcf-lib
   PROPERTIES OUTPUT_NAME "vcf"
   )
 list(APPEND MODULE_TARGETS vcf-lib)
+
+# The LDIF module
+add_library(ldif-lib MODULE ldiffile.cpp)
+set_target_properties(ldif-lib
+  PROPERTIES OUTPUT_NAME "ldif"
+  )
+list(APPEND MODULE_TARGETS ldif-lib)
