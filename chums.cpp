@@ -13,11 +13,14 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    vfile mscontact("wab");
-    var contact = mscontact.read("example.contact");
-
+    // Start with a vCard
     vfile vcard("vcf");
     var card = vcard.read("example.vcf");
+    cout << card << endl;
+    return 0;
+
+    vfile mscontact("wab");
+    var contact = mscontact.read("example.contact");
 
     vfile ldif("ldif");
     var ldap = ldif.read("example.ldif");

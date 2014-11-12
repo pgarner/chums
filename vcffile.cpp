@@ -10,6 +10,7 @@
 #include <fstream>
 #include <var.h>
 
+#include "contact.h"
 
 namespace libvar
 {
@@ -25,6 +26,7 @@ namespace libvar
 
     private:
         void doLine(var iLine);
+        void doAttr(var iQuad, var iAttr);
         enum {
             BEGIN,
             END,
@@ -36,10 +38,29 @@ namespace libvar
             ORG,
             TEL,
             BDAY,
-            ADR
+            ADR,
+            TITLE,
+            PHOTO,
+            REV
+        };
+        enum {
+            TYPE,
+            VALUE,
+            CELL,
+            HOME,
+            WORK,
+            VOICE,
+            PREF,
+            XINTERNET,
+            CHARSET,
+            ENCODING,
+            MEDIATYPE,
+            LABEL
         };
         var mTokenMap;
+        var mAttrMap;
         var mVar;
+        Card mCard;
     };
 
 
@@ -70,7 +91,22 @@ VCard::VCard()
     mTokenMap["TEL"] = TEL;
     mTokenMap["BDAY"] = BDAY;
     mTokenMap["ADR"] = ADR;
+    mTokenMap["TITLE"] = TITLE;
+    mTokenMap["PHOTO"] = PHOTO;
+    mTokenMap["REV"] = REV;
 //    mTokenMap[""] = ;
+    mAttrMap["TYPE"] = TYPE;
+    mAttrMap["VALUE"] = VALUE;
+    mAttrMap["CELL"] = CELL;
+    mAttrMap["HOME"] = HOME;
+    mAttrMap["WORK"] = WORK;
+    mAttrMap["VOICE"] = VOICE;
+    mAttrMap["PREF"] = PREF;
+    mAttrMap["X-INTERNET"] = XINTERNET;
+    mAttrMap["CHARSET"] = CHARSET;
+    mAttrMap["ENCODING"] = ENCODING;
+    mAttrMap["MEDIATYPE"] = MEDIATYPE;
+    mAttrMap["LABEL"] = LABEL;
 }
 
 void VCard::doLine(var iLine)
@@ -79,50 +115,84 @@ void VCard::doLine(var iLine)
     if (iLine.top() == '\r')
         iLine.pop();
 
-    // Split on colon
-    var s = iLine.split(":");
-    std::cout << s << std::endl;
+    // Split on first colon
+    var s = iLine.split(":", 2);
 
     // Split on semicolon
     var l = s[0].split(";");
+    var t = l.shift();
 
     // Process the first field
-    if (!mTokenMap.index(l[0]))
+    if (!mTokenMap.index(t))
     {
-        std::cout << l[0] << std::endl;
+        std::cout << t << std::endl;
         throw std::runtime_error("VCard::doLine: Unknown token");
     }
-    switch (mTokenMap[l[0]].cast<int>())
+
+    var q;
+    switch (mTokenMap[t].cast<int>())
     {
     case BEGIN:
-        std::cout << "BEGIN" << std::endl;
+        // Should perhaps initialise a temporary
+        mCard.append();
         break;
     case END:
-        std::cout << "END" << std::endl;
+        // Should perhaps transfer temporary to full array
         break;
     case VERSION:
-        std::cout << "VERSION" << std::endl;
+        q = mCard.quad("version");
+        doAttr(q, l);
+        q[3] = s[1];
         break;
     case EMAIL:
-        std::cout << "EMAIL" << std::endl;
+        q = mCard.quad("email");
+        doAttr(q, l);
+        q[3] = s[1];
         break;
     case N:
-        std::cout << "N" << std::endl;
+        q = mCard.quad("n");
+        doAttr(q, l);
+        q[3] = s[1].split(";");
         break;
     case FN:
-        std::cout << "FN" << std::endl;
+        q = mCard.quad("fn");
+        doAttr(q, l);
+        q[3] = s[1];
         break;
     case ORG:
-        std::cout << "ORG" << std::endl;
+        q = mCard.quad("org");
+        doAttr(q, l);
+        q[3] = s[1];
         break;
     case TEL:
-        std::cout << "TEL" << std::endl;
+        q = mCard.quad("tel");
+        doAttr(q, l);
+        q[3] = s[1];
         break;
     case BDAY:
-        std::cout << "BDAY" << std::endl;
+        q = mCard.quad("bday");
+        doAttr(q, l);
+        q[3] = s[1];
         break;
     case ADR:
-        std::cout << "ADR" << std::endl;
+        q = mCard.quad("adr");
+        doAttr(q, l);
+        q[3] = s[1];
+        break;
+    case TITLE:
+        q = mCard.quad("title");
+        doAttr(q, l);
+        q[3] = s[1];
+        break;
+    case PHOTO:
+        q = mCard.quad("photo");
+        doAttr(q, l);
+        q[3] = s[1];
+        break;
+    case REV:
+        q = mCard.quad("rev");
+        doAttr(q, l);
+        q[3] = s[1];
         break;
     default:
         std::cout << "Unhandled: " << s[0] << std::endl;
@@ -130,6 +200,67 @@ void VCard::doLine(var iLine)
     }
 }
 
+void VCard::doAttr(var iQuad, var iAttr)
+{
+    for (int i=0; i<iAttr.size(); i++)
+    {
+        var a = iAttr[i].split("=", 2);
+        var t = a[0];
+        if (!mAttrMap.index(t))
+        {
+            std::cout << t << std::endl;
+            throw std::runtime_error("VCard::doAttr: Unknown token");
+        }
+
+        switch (mAttrMap[t].cast<int>())
+        {
+            // Version 2.1 legacy types
+        case CELL:
+            iQuad[1]["type"].push("cell");
+            break;
+        case HOME:
+            iQuad[1]["type"].push("home");
+            break;
+        case WORK:
+            iQuad[1]["type"].push("work");
+            break;
+        case VOICE:
+            iQuad[1]["type"].push("voice");
+            break;
+        case PREF:
+            iQuad[1]["type"].push("pref");
+            break;
+
+            // Version 3 and later type encodings
+        case TYPE:
+            iQuad[1]["type"] = a[1].split(",");
+            break;
+        case VALUE:
+            iQuad[2] = a[1];
+            break;
+        case MEDIATYPE:
+            iQuad[1]["mediatype"] = a[1];
+            break;
+        case LABEL:
+            iQuad[1]["label"] = a[1];
+            break;
+
+            // Whacko encoding stuff
+        case XINTERNET:
+            std::cout << t << std::endl;
+            break;
+        case CHARSET:
+            std::cout << t << std::endl;
+            break;
+        case ENCODING:
+            std::cout << t << std::endl;
+            break;
+        default:
+            std::cout << "Unhandled: " << iAttr << std::endl;
+            throw std::runtime_error("VCard::doAttr: Unhandled token");
+        }
+    }
+}
 
 var VCard::read(const char* iFile)
 {
@@ -159,10 +290,10 @@ var VCard::read(const char* iFile)
                         // suppress that
         }
     }
-    if (next)
-        doLine(next);
+    if (line)
+        doLine(line);
 
-    return nil;
+    return var(mCard);
 }
 
 

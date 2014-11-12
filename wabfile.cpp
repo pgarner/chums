@@ -8,7 +8,7 @@
  */
 
 #include <var.h>
-
+#include "contact.h"
 
 namespace libvar
 {
@@ -23,6 +23,8 @@ namespace libvar
         virtual void write(const char* iFile, var iVar);
 
     private:
+        var mContact; ///< The contact to be populated
+
         void doElement(var iElem);
         enum {
             // Common elements
@@ -102,6 +104,9 @@ using namespace libvar;
 
 WAB::WAB()
 {
+    // Contact c'tor
+    mContact = contact();
+
     // Map strings to enums
     mTokenMap["c:Value"] = VALUE;
     mTokenMap["c:LabelCollection"] = LABELCOLLECTION;

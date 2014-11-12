@@ -19,6 +19,15 @@ find_package(LibVar REQUIRED)
 include_directories(${LIBVAR_INCLUDE_DIR})
 set(TARGET_LIBS ${LIBVAR_LIBRARIES})
 
+# Contact library
+add_library(contact SHARED contact.cpp)
+set_target_properties(contact
+  PROPERTIES OUTPUT_NAME "contact"
+  PUBLIC_HEADER "contact.h"
+  INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/libvar"
+  )
+target_link_libraries(contact ${TARGET_LIBS})
+
 # Main executable
 add_executable(chums chums.cpp)
 target_link_libraries(chums ${TARGET_LIBS})
@@ -28,6 +37,7 @@ add_library(wab-lib MODULE wabfile.cpp)
 set_target_properties(wab-lib
   PROPERTIES OUTPUT_NAME "wab"
   )
+target_link_libraries(wab-lib contact)
 list(APPEND MODULE_TARGETS wab-lib)
 
 # The vCard module
@@ -35,6 +45,7 @@ add_library(vcf-lib MODULE vcffile.cpp)
 set_target_properties(vcf-lib
   PROPERTIES OUTPUT_NAME "vcf"
   )
+target_link_libraries(vcf-lib contact)
 list(APPEND MODULE_TARGETS vcf-lib)
 
 # The LDIF module

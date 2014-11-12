@@ -19,6 +19,12 @@ then
     wget https://github.com/pgarner/libvar/raw/master/cmake/FindLibVar.cmake
 fi
 
+# This is the jCard spec
+if [ ! -e rfc7095.txt ]
+then
+    wget http://tools.ietf.org/rfc/rfc7095.txt
+fi
+
 cmake \
     -D CMAKE_BUILD_TYPE=debug \
     -D CMAKE_INSTALL_PREFIX=~/local \
