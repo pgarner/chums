@@ -10,7 +10,7 @@
 #include <fstream>
 #include <var.h>
 
-#include "contact.h"
+#include "card.h"
 
 namespace libvar
 {
@@ -41,7 +41,9 @@ namespace libvar
             ADR,
             TITLE,
             PHOTO,
-            REV
+            REV,
+            URL,
+            NOTE
         };
         enum {
             TYPE,
@@ -59,7 +61,6 @@ namespace libvar
         };
         var mTokenMap;
         var mAttrMap;
-        var mVar;
         Card mCard;
     };
 
@@ -94,6 +95,8 @@ VCard::VCard()
     mTokenMap["TITLE"] = TITLE;
     mTokenMap["PHOTO"] = PHOTO;
     mTokenMap["REV"] = REV;
+    mTokenMap["URL"] = URL;
+    mTokenMap["NOTE"] = NOTE;
 //    mTokenMap[""] = ;
     mAttrMap["TYPE"] = TYPE;
     mAttrMap["VALUE"] = VALUE;
@@ -177,7 +180,7 @@ void VCard::doLine(var iLine)
     case ADR:
         q = mCard.quad("adr");
         doAttr(q, l);
-        q[3] = s[1];
+        q[3] = s[1].split(";");
         break;
     case TITLE:
         q = mCard.quad("title");
@@ -191,6 +194,16 @@ void VCard::doLine(var iLine)
         break;
     case REV:
         q = mCard.quad("rev");
+        doAttr(q, l);
+        q[3] = s[1];
+        break;
+    case URL:
+        q = mCard.quad("url");
+        doAttr(q, l);
+        q[3] = s[1];
+        break;
+    case NOTE:
+        q = mCard.quad("note");
         doAttr(q, l);
         q[3] = s[1];
         break;

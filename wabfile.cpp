@@ -8,7 +8,7 @@
  */
 
 #include <var.h>
-#include "contact.h"
+#include "card.h"
 
 namespace libvar
 {
@@ -27,6 +27,9 @@ namespace libvar
 
         void doElement(var iElem);
         enum {
+            // NIL
+            NIL = 0,
+            
             // Common elements
             VALUE,
             LABELCOLLECTION,
@@ -85,7 +88,8 @@ namespace libvar
             DATE
         };
         var mTokenMap;
-        var mVar;
+        int mEntity;
+        Card mCard;
     };
 
 
@@ -104,9 +108,6 @@ using namespace libvar;
 
 WAB::WAB()
 {
-    // Contact c'tor
-    mContact = contact();
-
     // Map strings to enums
     mTokenMap["c:Value"] = VALUE;
     mTokenMap["c:LabelCollection"] = LABELCOLLECTION;
@@ -172,10 +173,27 @@ void WAB::doElement(var iElem)
         std::cout << iElem.at("name") << std::endl;
         throw std::runtime_error("WAB::doElement: Unknown token");
     }
+
+    var q;
     switch (mTokenMap[name].cast<int>())
     {
     case VALUE:
-        std::cout << "Value" << std::endl;
+        switch (mEntity)
+        {
+        case NIL:
+            throw std::runtime_error("WAB::doElement: Undefined VALUE entity");
+        case CONTACTID:
+            q = mCard.quad("uri");
+            q[3] = data;
+            break;
+        case PHOTO:
+            // Ignore photos for now
+            //q = mCard.quad("photo");
+            //q[3] = data;
+            break;
+        default:
+            throw std::runtime_error("WAB::doElement: Unknown VALUE entity");
+        }
         break;
     case LABELCOLLECTION:
         std::cout << "LabelCollection" << std::endl;
@@ -187,33 +205,35 @@ void WAB::doElement(var iElem)
         break;
 
     case NOTES:
-        std::cout << "Notes" << std::endl;
+        q = mCard.quad("note");
+        q[3] = data;
         break;
     case CREATIONDATE:
-        std::cout << "CreationDate" << std::endl;
+        q = mCard.quad("rev");
+        q[3] = data;
         break;
     case EXTENDED:
-        std::cout << "Extended" << std::endl;
+        // Ignore this tag
         break;
 
     case CONTACTIDCOLLECTION:
-        std::cout << "ContactIDCollection" << std::endl;
+        mEntity = NIL;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case CONTACTID:
-        std::cout << "ContactID" << std::endl;
+        mEntity = CONTACTID;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
 
     case EMAILADDRESSCOLLECTION:
-        std::cout << "EmailAddressCollection" << std::endl;
+        mEntity = NIL;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case EMAILADDRESS:
-        std::cout << "EmailAddress" << std::endl;
+        mEntity = EMAILADDRESS;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
@@ -222,6 +242,7 @@ void WAB::doElement(var iElem)
         break;
 
     case PHYSICALADDRESSCOLLECTION:
+        mEntity = NIL;
         std::cout << "PhysicalAddressCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
@@ -245,6 +266,7 @@ void WAB::doElement(var iElem)
         break;
 
     case NAMECOLLECTION:
+        mEntity = NIL;
         std::cout << "NameCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
@@ -265,6 +287,7 @@ void WAB::doElement(var iElem)
         break;
 
     case PHONENUMBERCOLLECTION:
+        mEntity = NIL;
         std::cout << "PhoneNumberCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
@@ -279,17 +302,18 @@ void WAB::doElement(var iElem)
         break;
 
     case PHOTOCOLLECTION:
-        std::cout << "PhotoCollection" << std::endl;
+        mEntity = NIL;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case PHOTO:
-        std::cout << "Photo" << std::endl;
+        mEntity = PHOTO;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
 
     case URLCOLLECTION:
+        mEntity = NIL;
         std::cout << "UrlCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
@@ -299,6 +323,7 @@ void WAB::doElement(var iElem)
         break;
 
     case POSITIONCOLLECTION:
+        mEntity = NIL;
         std::cout << "PositionCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
@@ -313,6 +338,7 @@ void WAB::doElement(var iElem)
         break;
 
     case DATECOLLECTION:
+        mEntity = NIL;
         std::cout << "DateCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
@@ -338,10 +364,11 @@ var WAB::read(const char* iFile)
     if (contact.at("name") != "c:contact")
         throw std::runtime_error("WAB::read: Not a contact");
     var data = contact["data"];
+    mCard.append();
     for (int i=0; i<data.size(); i++)
         doElement(data[i]);
     
-    return contact;
+    return var(mCard);
 }
 
 

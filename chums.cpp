@@ -15,12 +15,13 @@ int main(int argc, char** argv)
 {
     // Start with a vCard
     vfile vcard("vcf");
-    var card = vcard.read("example.vcf");
+    var card = vcard.read("example2.vcf");
     cout << card << endl;
-    return 0;
 
     vfile mscontact("wab");
     var contact = mscontact.read("example.contact");
+    cout << contact << endl;
+    return 0;
 
     vfile ldif("ldif");
     var ldap = ldif.read("example.ldif");
