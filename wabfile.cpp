@@ -23,8 +23,6 @@ namespace libvar
         virtual void write(const char* iFile, var iVar);
 
     private:
-        var mContact; ///< The contact to be populated
-
         void doElement(var iElem);
         enum {
             // NIL
@@ -87,9 +85,21 @@ namespace libvar
             DATECOLLECTION,
             DATE
         };
+        enum {
+            // Label types
+            PREFERRED,
+            BUSINESS,
+            PERSONAL,
+            FAX,
+            VOICE,
+            CELLULAR,
+            USERTILE
+        };
         var mTokenMap;
+        var mLabelMap;
         int mEntity;
         Card mCard;
+        var mQuad;
     };
 
 
@@ -155,16 +165,22 @@ WAB::WAB()
     mTokenMap["c:DateCollection"] = DATECOLLECTION;
     mTokenMap["c:Date"] = DATE;
 //    mTokenMap[""] = ;
+
+    mLabelMap["Preferred"] = PREFERRED;
+    mLabelMap["Business"] = BUSINESS;
+    mLabelMap["Personal"] = PERSONAL;
+    mLabelMap["Fax"] = FAX;
+    mLabelMap["Voice"] = VOICE;
+    mLabelMap["Cellular"] = CELLULAR;
+    mLabelMap["Usertile"] = USERTILE;
 }
 
 
 void WAB::doElement(var iElem)
 {
     if (iElem.atype() != TYPE_PAIR)
-    {
-        std::cout << "Skipping non-element" << std::endl;
+        // Not an element; probably whitespace
         return;
-    }
 
     var name = iElem.at("name");
     var data = iElem.at("data");
@@ -178,13 +194,16 @@ void WAB::doElement(var iElem)
     switch (mTokenMap[name].cast<int>())
     {
     case VALUE:
+        // Value is a generic element that can apply to several entities.
         switch (mEntity)
         {
         case NIL:
             throw std::runtime_error("WAB::doElement: Undefined VALUE entity");
         case CONTACTID:
-            q = mCard.quad("uri");
-            q[3] = data;
+            mQuad[3] = data[0];
+            break;
+        case URL:
+            mQuad[3] = data[0];
             break;
         case PHOTO:
             // Ignore photos for now
@@ -196,21 +215,45 @@ void WAB::doElement(var iElem)
         }
         break;
     case LABELCOLLECTION:
-        std::cout << "LabelCollection" << std::endl;
+        mEntity = NIL;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case LABEL:
-        std::cout << "Label" << std::endl;
+        switch (mLabelMap[data[0]].cast<int>())
+        {
+        case PREFERRED:
+            mQuad[1]["pref"].push("1");
+            break;
+        case BUSINESS:
+            mQuad[1]["type"].push("work");
+            break;
+        case PERSONAL:
+            mQuad[1]["type"].push("home");
+            break;
+        case FAX:
+            mQuad[1]["type"].push("fax");
+            break;
+        case VOICE:
+            mQuad[1]["type"].push("voice");
+            break;
+        case CELLULAR:
+            mQuad[1]["type"].push("cell");
+            break;
+        case USERTILE:
+            break;
+        default:
+            throw std::runtime_error("WAB::doElement: Unknown LABEL");
+        }
         break;
 
     case NOTES:
-        q = mCard.quad("note");
-        q[3] = data;
+        mQuad = mCard.quad("note");
+        mQuad[3] = data[0];
         break;
     case CREATIONDATE:
-        q = mCard.quad("rev");
-        q[3] = data;
+        mQuad = mCard.quad("rev");
+        mQuad[3] = data[0];
         break;
     case EXTENDED:
         // Ignore this tag
@@ -223,6 +266,7 @@ void WAB::doElement(var iElem)
         break;
     case CONTACTID:
         mEntity = CONTACTID;
+        mQuad = mCard.quad("uid");
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
@@ -234,71 +278,78 @@ void WAB::doElement(var iElem)
         break;
     case EMAILADDRESS:
         mEntity = EMAILADDRESS;
+        mQuad = mCard.quad("email");
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case ADDRESS:
-        std::cout << "Address" << std::endl;
+        mQuad[3] = data[0];
         break;
 
     case PHYSICALADDRESSCOLLECTION:
         mEntity = NIL;
-        std::cout << "PhysicalAddressCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case PHYSICALADDRESS:
-        std::cout << "PhysicalAddress" << std::endl;
+        mEntity = PHYSICALADDRESS;
+        mQuad = mCard.quad("adr");
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case COUNTRY:
-        std::cout << "Country" << std::endl;
+        mQuad[3][6] = data[0];
         break;
     case POSTALCODE:
-        std::cout << "PostalCode" << std::endl;
+        mQuad[3][5] = data[0];
         break;
     case LOCALITY:
-        std::cout << "Locality" << std::endl;
+        mQuad[3][3] = data[0];
         break;
     case STREET:
-        std::cout << "Street" << std::endl;
+        mQuad[3][2] = data.join("");
         break;
 
     case NAMECOLLECTION:
         mEntity = NIL;
-        std::cout << "NameCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case NAME:
-        std::cout << "Name" << std::endl;
+        mEntity = NAME;
+        mQuad = mCard.quad("n");
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case FORMATTEDNAME:
-        std::cout << "FormattedName" << std::endl;
+        // Add an extra quad in the middle of assigning family and given names
+        // to the NAME quad.  This might cause trouble if there is metadata.
+        q = mCard.quad("fn");
+        q[3] = data[0];
         break;
     case FAMILYNAME:
-        std::cout << "FamilyName" << std::endl;
+        if (mQuad[3])
+            mQuad[3].unshift(data[0]);
+        else
+            mQuad[3][0] = data[0];
         break;
     case GIVENNAME:
-        std::cout << "GivenName" << std::endl;
+        mQuad[3].push(data[0]);
         break;
 
     case PHONENUMBERCOLLECTION:
         mEntity = NIL;
-        std::cout << "PhoneNumberCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case PHONENUMBER:
-        std::cout << "PhoneNumber" << std::endl;
+        mEntity = PHONENUMBER;
+        mQuad = mCard.quad("tel");
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case NUMBER:
-        std::cout << "Number" << std::endl;
+        mQuad[3] = data[0];
         break;
 
     case PHOTOCOLLECTION:
@@ -314,37 +365,39 @@ void WAB::doElement(var iElem)
 
     case URLCOLLECTION:
         mEntity = NIL;
-        std::cout << "UrlCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case URL:
-        std::cout << "Url" << std::endl;
+        mEntity = URL;
+        mQuad = mCard.quad("url");
+        for (int i=0; i<data.size(); i++)
+            doElement(data[i]);
         break;
 
     case POSITIONCOLLECTION:
         mEntity = NIL;
-        std::cout << "PositionCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case POSITION:
-        std::cout << "Position" << std::endl;
+        mEntity = POSITION;
+        mQuad = mCard.quad("org");
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case COMPANY:
-        std::cout << "Company" << std::endl;
+        mQuad[3] = data[0];
         break;
 
     case DATECOLLECTION:
         mEntity = NIL;
-        std::cout << "DateCollection" << std::endl;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case DATE:
-        std::cout << "Date" << std::endl;
+        mEntity = DATE;
+        mQuad = mCard.quad("DATE");
         break;
 
     default:

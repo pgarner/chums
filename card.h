@@ -7,8 +7,8 @@
  *   Phil Garner, September 2014
  */
 
-#ifndef CONTACT_H
-#define CONTACT_H
+#ifndef CARD_H
+#define CARD_H
 
 #include <var.h>
 
@@ -26,4 +26,4 @@ namespace libvar
     };
 }
 
-#endif // CONTACT_H
+#endif // CARD_H
