@@ -27,6 +27,7 @@ namespace libvar
     private:
         void doLine(var iLine);
         void doAttr(var iQuad, var iAttr);
+        void writeCard(std::ofstream& iOS, var iVar);
         enum {
             BEGIN,
             END,
@@ -62,6 +63,7 @@ namespace libvar
         var mTokenMap;
         var mAttrMap;
         Card mCard;
+        var mVersion;
     };
 
 
@@ -143,9 +145,10 @@ void VCard::doLine(var iLine)
         // Should perhaps transfer temporary to full array
         break;
     case VERSION:
-        q = mCard.quad("version");
-        doAttr(q, l);
-        q[3] = s[1];
+        // The version in memory is always the latest vCard version,
+        // corresponding directly to a jCard.  This is the version of the file
+        // being read.
+        mVersion = s[1];
         break;
     case EMAIL:
         q = mCard.quad("email");
@@ -312,4 +315,35 @@ var VCard::read(const char* iFile)
 
 void VCard::write(const char* iFile, var iVar)
 {
+    // Output stream
+    std::ofstream os(iFile, std::ofstream::out);
+    if (os.fail())
+        throw std::runtime_error("vcffile::write(): Open failed");
+
+    var v = var(mCard);
+    for (int i=0; i<v.size(); i++)
+        writeCard(os, v[i]);
+}
+
+void VCard::writeCard(std::ofstream& iOS, var iVar)
+{
+    if (iVar[0] != "vcard")
+        throw std::runtime_error("vcffile::writeCard(): Not a vCard");
+    iOS << "BEGIN:VCARD" << std::endl;
+    for (int i=0; i<iVar[1].size(); i++)
+    {
+        var v = iVar[1][i];
+        iOS << v[0].str();
+        for (int j=0; j<v[1].size(); j++)
+        {
+            iOS << ";" << v[1].key(j).str() << "=";
+            iOS << ( v[1][j].atype() == TYPE_CHAR
+                     ? v[1][j].str()
+                     : v[1][j].join(",").str() );
+        }
+        iOS << ":";
+        iOS << (v[3].atype() == TYPE_CHAR ? v[3].str() : v[3].join(";").str());
+        iOS << std::endl;
+    }
+    iOS << "END:VCARD" << std::endl;
 }

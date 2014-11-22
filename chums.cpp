@@ -17,6 +17,8 @@ int main(int argc, char** argv)
     vfile vcard("vcf");
     var card = vcard.read("example2.vcf");
     cout << card << endl;
+    vcard.write("out.vcf", card);
+    exit(0);
 
     vfile mscontact("wab");
     var contact = mscontact.read("example.contact");

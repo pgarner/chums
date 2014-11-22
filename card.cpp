@@ -43,11 +43,18 @@ Card::Card()
 
 var Card::append()
 {
+    // Append a vCard to the list
     static var vcard = "vcard";
     var v;
     v[0] = vcard;
     v[1] = nil;
     mCards.push(v);
+
+    // Version is mandatory, and is always 4.0
+    static var version = "version";
+    static var v4 = "4.0";
+    var q = quad(version);
+    q[3] = v4;
     return mCards.top();
 }
 
