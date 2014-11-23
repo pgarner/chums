@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 by Idiap Research Institute, http://www.idiap.ch
+ * Copyright 2014 by Philip N. Garner
  *
  * See the file COPYING for the licence associated with this software.
  *
@@ -12,6 +12,23 @@
 
 /*
  * Notes basically taken from http://tools.ietf.org/html/rfc6350
+ *
+ * N spec:
+ *
+ * The structured property value corresponds, in sequence, to
+ *
+ *   0: Family Names (also known as surnames)
+ *   1: Given Names
+ *   2: Additional Names
+ *   3: Honorific Prefixes
+ *   4: Honorific Suffixes
+ *
+ * The text components are separated by the SEMICOLON character (U+003B).
+ * Individual text components can include multiple text values separated by the
+ * COMMA character (U+002C).  This property is based on the semantics of the
+ * X.520 individual name attributes [CCITT.X520.1988].  The property SHOULD be
+ * present in the vCard object when the name of the object the vCard represents
+ * follows the X.520 model.
  *
  * ADR spec:
  *

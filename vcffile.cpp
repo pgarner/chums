@@ -228,6 +228,7 @@ void VCard::doAttr(var iQuad, var iAttr)
             throw std::runtime_error("VCard::doAttr: Unknown token");
         }
 
+        var tmp;
         switch (mAttrMap[t].cast<int>())
         {
             // Version 2.1 legacy types
@@ -249,7 +250,12 @@ void VCard::doAttr(var iQuad, var iAttr)
 
             // Version 3 and later type encodings
         case TYPE:
-            iQuad[1]["type"] = a[1].split(",");
+            tmp = a[1].tolower().split(",");
+            for (int i=0; i<tmp.size(); i++)
+                if (tmp[i] == "pref")
+                    iQuad[1]["pref"] = "1";
+                else
+                    iQuad[1]["type"].push(tmp[i]);
             break;
         case VALUE:
             iQuad[2] = a[1];
@@ -315,8 +321,11 @@ var VCard::read(const char* iFile)
 
 void VCard::write(const char* iFile, var iVar)
 {
-    // Output stream
-    std::ofstream os(iFile, std::ofstream::out);
+    // vCards are required to use CRLF as line ends.  The natural line end is
+    // machine dependent ('\n' is translated in text mode to the right thing).
+    // Rather, guarantee CRLF by opening in binary mode and writing CRLF
+    // explicitly.  https://en.wikipedia.org/wiki/Newline
+    std::ofstream os(iFile, std::ofstream::out | std::ofstream::binary);
     if (os.fail())
         throw std::runtime_error("vcffile::write(): Open failed");
 
@@ -327,9 +336,10 @@ void VCard::write(const char* iFile, var iVar)
 
 void VCard::writeCard(std::ofstream& iOS, var iVar)
 {
+    static char crlf[] = "\r\n";
     if (iVar[0] != "vcard")
         throw std::runtime_error("vcffile::writeCard(): Not a vCard");
-    iOS << "BEGIN:VCARD" << std::endl;
+    iOS << "BEGIN:VCARD" << crlf;
     for (int i=0; i<iVar[1].size(); i++)
     {
         var v = iVar[1][i];
@@ -345,7 +355,7 @@ void VCard::writeCard(std::ofstream& iOS, var iVar)
             iOS << ";" << "VALUE=" << v[2].str();
         iOS << ":";
         iOS << (v[3].atype() == TYPE_CHAR ? v[3].str() : v[3].join(";").str());
-        iOS << std::endl;
+        iOS << crlf;
     }
-    iOS << "END:VCARD" << std::endl;
+    iOS << "END:VCARD" << crlf;
 }

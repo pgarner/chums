@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 {
     // Start with a vCard
     vfile vcard("vcf");
-    var card = vcard.read("example2.vcf");
+    var card = vcard.read("example3.vcf");
     vcard.write("out.vcf", card);
     cout << card << endl;
     return 0;
