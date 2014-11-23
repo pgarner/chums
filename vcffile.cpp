@@ -333,14 +333,16 @@ void VCard::writeCard(std::ofstream& iOS, var iVar)
     for (int i=0; i<iVar[1].size(); i++)
     {
         var v = iVar[1][i];
-        iOS << v[0].str();
+        iOS << v[0].copy().toupper().str();
         for (int j=0; j<v[1].size(); j++)
         {
-            iOS << ";" << v[1].key(j).str() << "=";
+            iOS << ";" << v[1].key(j).copy().toupper().str() << "=";
             iOS << ( v[1][j].atype() == TYPE_CHAR
                      ? v[1][j].str()
                      : v[1][j].join(",").str() );
         }
+        if (v[2] != "text")
+            iOS << ";" << "VALUE=" << v[2].str();
         iOS << ":";
         iOS << (v[3].atype() == TYPE_CHAR ? v[3].str() : v[3].join(";").str());
         iOS << std::endl;
