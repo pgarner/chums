@@ -52,12 +52,6 @@
 
 using namespace libvar;
 
-Card::Card()
-{
-    //mCard[0] = "vcard";
-    //mCard[1] = nil;
-}
-
 var Card::append()
 {
     // Append a vCard to the list
@@ -83,5 +77,45 @@ var Card::quad(var iName)
     q.resize(4);
     q[2] = text;
     mCards.top()[1].push(q);
+    return q;
+}
+
+/**
+ * Finds the first quad called "n", or creates it
+ */
+var Card::name()
+{
+    var qa = mCards.top()[1];
+    for (int i=0; i<qa.size(); i++)
+        if (qa[i][0] == "n")
+            return qa[i];
+    var q = quad("n");
+    q[3].resize(5);
+    return q;
+}
+
+/**
+ * Finds the first quad called "adr" with ["type"]=iType, or creates it
+ */
+var Card::adr(var iType)
+{
+    var qa = mCards.top()[1];
+    for (int i=0; i<qa.size(); i++)
+        if (qa[i][0] == "adr")
+        {
+            if (iType)
+            {
+                if ( qa[i][1] &&
+                     qa[i][1].index("type") &&
+                     qa[i][1]["type"].index(iType) )
+                    return qa[i];
+            }
+            else
+                return qa[i];
+        }
+    var q = quad("adr");
+    if (iType)
+        q[1]["type"].push(iType);
+    q[3].resize(7);
     return q;
 }

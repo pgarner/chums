@@ -53,4 +53,5 @@ add_library(ldif-lib MODULE ldiffile.cpp)
 set_target_properties(ldif-lib
   PROPERTIES OUTPUT_NAME "ldif"
   )
+target_link_libraries(ldif-lib card)
 list(APPEND MODULE_TARGETS ldif-lib)

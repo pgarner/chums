@@ -23,10 +23,11 @@ int main(int argc, char** argv)
     var contact = wab.read("example.contact");
     vcf.write("contact.vcf", contact);
     cout << "Contact: " << contact << endl;
-    return 0;
 
     vfile ldif("ldif");
     var ldap = ldif.read("example.ldif");
+    vcf.write("ldap.vcf", ldap);
+    cout << "LDAP: " << ldap << endl;
     
     return 0;
 }

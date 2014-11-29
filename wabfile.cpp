@@ -408,6 +408,10 @@ void WAB::doElement(var iElem)
             doElement(data[i]);
         break;
     case DATE:
+        // vCards don't have a date property, but the value data of some
+        // properties can be a date.  The hack here is to start with a DATE
+        // property, then have the LABEL element change the property name
+        // later.
         mEntity = DATE;
         mQuad = mCard.quad("DATE");
         for (int i=0; i<data.size(); i++)

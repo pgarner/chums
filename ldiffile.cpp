@@ -10,11 +10,15 @@
 #include <fstream>
 #include <var.h>
 
+#include "card.h"
 
 namespace libvar
 {
     /**
      * Ad-hoc parser for LDIF files
+     *
+     * ...actually probably quite tied to the type of LDIF that mozilla
+     * exports.  That said, that's the file I want to parse.
      */
     class LDIF : public varfile
     {
@@ -43,6 +47,8 @@ namespace libvar
             C,
             STREET,
             MOZILLACUSTOM1,
+            MOZILLACUSTOM2,
+            MOZILLACUSTOM3,
             MOZILLACUSTOM4,
             MOZILLASECONDEMAIL,
             MOZILLANICKNAME,
@@ -56,7 +62,7 @@ namespace libvar
             MOZILLAWORKURL
         };
         var mTokenMap;
-        var mVar;
+        Card mCard;
     };
 
 
@@ -93,6 +99,8 @@ LDIF::LDIF()
     mTokenMap["c"] = C;
     mTokenMap["street"] = STREET;
     mTokenMap["mozillaCustom1"] = MOZILLACUSTOM1;
+    mTokenMap["mozillaCustom2"] = MOZILLACUSTOM2;
+    mTokenMap["mozillaCustom3"] = MOZILLACUSTOM3;
     mTokenMap["mozillaCustom4"] = MOZILLACUSTOM4;
     mTokenMap["mozillaSecondEmail"] = MOZILLASECONDEMAIL;
     mTokenMap["mozillaNickname"] = MOZILLANICKNAME;
@@ -110,8 +118,8 @@ LDIF::LDIF()
 void LDIF::doLine(var iLine)
 {
     // Split on colon
-    var s = iLine.split(":");
-    std::cout << s << std::endl;
+    var s = iLine.split(":", 2);
+    s[1].strip();
 
     // Process the first field
     if (!mTokenMap.index(s[0]))
@@ -119,94 +127,133 @@ void LDIF::doLine(var iLine)
         std::cout << s[0] << std::endl;
         throw std::runtime_error("LDIF::doLine: Unknown token");
     }
+
+    // The Mozilla stuff defaults to "work"; i.e., L, C, STREET etc.  The
+    // qualified ones (MOZILLAHOMEPOSTALCODE etc.) are "home".
+    var q;
     switch (mTokenMap[s[0]].cast<int>())
     {
-    case DN: // Distinguished name
-        std::cout << "DN" << std::endl;
+    case DN:
+        // Distinguished name
+        //
+        // This is the one that indicates a new card.  I'm not sure it's
+        // guaranteed to come first, but let's go with it for now.
+        mCard.append();
         break;
     case O:
-        std::cout << "O" << std::endl;
+        q = mCard.quad("org");
+        q[3] = s[1];
         break;
     case OBJECTCLASS:
-        std::cout << "OBJECTCLASS" << std::endl;
+        // Ignore this one
         break;
     case GIVENNAME:
-        std::cout << "GIVENNAME" << std::endl;
+        q = mCard.name();
+        q[3][1] = s[1];
         break;
     case SN:
-        std::cout << "SN" << std::endl;
+        q = mCard.name();
+        q[3][0] = s[1];
         break;
     case CN:
-        std::cout << "CN" << std::endl;
+        q = mCard.quad("fn");
+        q[3] = s[1];
         break;
     case MAIL:
-        std::cout << "MAIL" << std::endl;
+    case MOZILLASECONDEMAIL:
+        q = mCard.quad("email");
+        q[3] = s[1];
         break;
     case MODIFYTIMESTAMP:
-        std::cout << "MODIFYTIMESTAMP" << std::endl;
+        q = mCard.quad("rev");
+        q[3] = s[1];
         break;
     case HOMEPHONE:
-        std::cout << "HOMEPHONE" << std::endl;
+        q = mCard.quad("tel");
+        q[1]["type"].push("home");
+        q[3] = s[1];
         break;
     case MOBILE:
-        std::cout << "MOBILE" << std::endl;
+        q = mCard.quad("tel");
+        q[1]["type"].push("cell");
+        q[3] = s[1];
         break;
     case TELEPHONENUMBER:
-        std::cout << "TELEPHONENUMBER" << std::endl;
+        q = mCard.quad("tel");
+        q[3] = s[1];
         break;
     case L:
-        std::cout << "L" << std::endl;
+        q = mCard.adr("work");
+        q[3][3] = s[1];
         break;
     case POSTALCODE:
-        std::cout << "POSTALCODE" << std::endl;
+        q = mCard.adr("work");
+        q[3][5] = s[1];
         break;
     case C:
-        std::cout << "C" << std::endl;
+        q = mCard.adr("work");
+        q[3][6] = s[1];
         break;
     case STREET:
-        std::cout << "STREET" << std::endl;
+        q = mCard.adr("work");
+        q[3][2] = s[1];
         break;
     case FACSIMILETELEPHONENUMBER:
-        std::cout << "FACSIMILETELEPHONENUMBER" << std::endl;
+        q = mCard.quad("tel");
+        q[1]["type"].push("fax");
+        q[3] = s[1];
         break;
     case MOZILLACUSTOM1:
-        std::cout << "MOZILLACUSTOM1" << std::endl;
-        break;
+    case MOZILLACUSTOM2:
+    case MOZILLACUSTOM3:
     case MOZILLACUSTOM4:
-        std::cout << "MOZILLACUSTOM4" << std::endl;
-        break;
-    case MOZILLASECONDEMAIL:
-        std::cout << "MOZILLASECONDEMAIL" << std::endl;
+        q = mCard.quad("note");
+        q[1]["type"].push("mozillacustom");
+        q[3] = s[1];
         break;
     case MOZILLANICKNAME:
-        std::cout << "MOZILLANICKNAME" << std::endl;
+        q = mCard.quad("nickname");
+        q[3] = s[1];
         break;
     case MOZILLAHOMELOCALITYNAME:
-        std::cout << "MOZILLAHOMELOCALITYNAME" << std::endl;
+        q = mCard.adr("home");
+        q[3][3] = s[1];
         break;
     case MOZILLAHOMEPOSTALCODE:
-        std::cout << "MOZILLAHOMEPOSTALCODE" << std::endl;
+        q = mCard.adr("home");
+        q[3][5] = s[1];
         break;
     case MOZILLAHOMECOUNTRYNAME:
-        std::cout << "MOZILLAHOMECOUNTRYNAME" << std::endl;
+        q = mCard.adr("home");
+        q[3][6] = s[1];
         break;
     case MOZILLAHOMESTATE:
-        std::cout << "MOZILLAHOMESTATE" << std::endl;
+        q = mCard.adr("home");
+        q[3][4] = s[1];
         break;
     case MOZILLAHOMESTREET:
-        std::cout << "MOZILLAHOMESTREET" << std::endl;
+        q = mCard.adr("home");
+        q[3][2] = s[1];
         break;
     case MOZILLAHOMESTREET2:
-        std::cout << "MOZILLAHOMESTREET2" << std::endl;
+        q = mCard.adr("home");
+        q[3][2].append(", ");
+        q[3][2].append(s[1]);
         break;
     case MOZILLAWORKSTREET2:
-        std::cout << "MOZILLAWORKSTREET2" << std::endl;
+        // "Work street 1" is just "street"
+        q = mCard.adr("work");
+        q[3][2].append(", ");
+        q[3][2].append(s[1]);
         break;
     case MOZILLAWORKURL:
-        std::cout << "MOZILLAWORKURL" << std::endl;
+        q = mCard.quad("url");
+        q[1]["type"].push("work");
+        q[3] = s[1];
         break;
     default:
         std::cout << "Unhandled: " << s[0] << std::endl;
+        std::cout << s << std::endl;
         throw std::runtime_error("LDIF::doLine: Unhandled token");        
     }
 }
@@ -226,7 +273,7 @@ var LDIF::read(const char* iFile)
         if (line.size() > 0)
             doLine(line);
 
-    return nil;
+    return var(mCard);
 }
 
 

@@ -17,10 +17,11 @@ namespace libvar
     class Card
     {
     public:
-        Card();
         explicit operator var() const { return mCards; };
         var append();
         var quad(var iName);
+        var name();
+        var adr(var iType=nil);
     private:
         var mCards; ///< The array of cards
     };
