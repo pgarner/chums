@@ -329,7 +329,7 @@ void VCard::write(const char* iFile, var iVar)
     if (os.fail())
         throw std::runtime_error("vcffile::write(): Open failed");
 
-    var v = var(mCard);
+    var v = var(iVar);
     for (int i=0; i<v.size(); i++)
         writeCard(os, v[i]);
 }

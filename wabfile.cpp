@@ -93,7 +93,8 @@ namespace libvar
             FAX,
             VOICE,
             CELLULAR,
-            USERTILE
+            USERTILE,
+            BIRTHDAY
         };
         var mTokenMap;
         var mLabelMap;
@@ -172,7 +173,8 @@ WAB::WAB()
     mLabelMap["Fax"] = FAX;
     mLabelMap["Voice"] = VOICE;
     mLabelMap["Cellular"] = CELLULAR;
-    mLabelMap["Usertile"] = USERTILE;
+    mLabelMap["UserTile"] = USERTILE;
+    mLabelMap["wab:Birthday"] = BIRTHDAY;
 }
 
 
@@ -210,20 +212,27 @@ void WAB::doElement(var iElem)
             //q = mCard.quad("photo");
             //q[3] = data;
             break;
+        case DATE:
+            mQuad[3] = data[0];
+            break;
         default:
             throw std::runtime_error("WAB::doElement: Unknown VALUE entity");
         }
         break;
     case LABELCOLLECTION:
-        mEntity = NIL;
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
         break;
     case LABEL:
+        if (!mLabelMap.index(data[0]))
+        {
+            std::cout << data[0] << std::endl;
+            throw std::runtime_error("WAB::doElement: Unknown LABEL token");
+        }
         switch (mLabelMap[data[0]].cast<int>())
         {
         case PREFERRED:
-            mQuad[1]["pref"].push("1");
+            mQuad[1]["pref"] = "1";
             break;
         case BUSINESS:
             mQuad[1]["type"].push("work");
@@ -241,6 +250,9 @@ void WAB::doElement(var iElem)
             mQuad[1]["type"].push("cell");
             break;
         case USERTILE:
+            break;
+        case BIRTHDAY:
+            mQuad[0] = "bday";
             break;
         default:
             throw std::runtime_error("WAB::doElement: Unknown LABEL");
@@ -398,6 +410,8 @@ void WAB::doElement(var iElem)
     case DATE:
         mEntity = DATE;
         mQuad = mCard.quad("DATE");
+        for (int i=0; i<data.size(); i++)
+            doElement(data[i]);
         break;
 
     default:
