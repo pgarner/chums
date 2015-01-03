@@ -53,6 +53,7 @@ namespace libvar
             PHYSICALADDRESS,
             COUNTRY,
             POSTALCODE,
+            REGION,
             LOCALITY,
             STREET,
 
@@ -140,6 +141,7 @@ WAB::WAB()
     mTokenMap["c:PhysicalAddress"] = PHYSICALADDRESS;
     mTokenMap["c:Country"] = COUNTRY;
     mTokenMap["c:PostalCode"] = POSTALCODE;
+    mTokenMap["c:Region"] = REGION;
     mTokenMap["c:Locality"] = LOCALITY;
     mTokenMap["c:Street"] = STREET;
 
@@ -315,6 +317,9 @@ void WAB::doElement(var iElem)
     case POSTALCODE:
         mQuad[3][5] = data[0];
         break;
+    case REGION:
+        mQuad[3][4] = data[0];
+        break;
     case LOCALITY:
         mQuad[3][3] = data[0];
         break;
@@ -429,7 +434,7 @@ var WAB::read(const char* iFile)
 {
     // Read the XML file
     vfile mscontact("xml");
-    var contact = mscontact.read("example.contact");
+    var contact = mscontact.read(iFile);
 
     // Walk the DOM
     if (contact.at("name") != "c:contact")

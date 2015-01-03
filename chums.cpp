@@ -8,26 +8,25 @@
  */
 
 #include <lv.h>
+#include <varpath.h>
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
-    // Start with a vCard
-    vfile vcf("vcf");
-    var vcard = vcf.read("example3.vcf");
-    vcf.write("vcard.vcf", vcard);
-    cout << "vCard: " << vcard << endl;
+    // Should use $HOME here
+    lv::module m("path");
+    lv::path* p = lv::create(m, "/home/phil/Dropbox/Contacts");
 
+    // Get a diretory listing
+    var c = p->dir();
+
+    // load files into a WAB thang
     vfile wab("wab");
-    var contact = wab.read("example.contact");
-    vcf.write("contact.vcf", contact);
-    cout << "Contact: " << contact << endl;
-
-    vfile ldif("ldif");
-    var ldap = ldif.read("example.ldif");
-    vcf.write("ldap.vcf", ldap);
-    cout << "LDAP: " << ldap << endl;
+    var x;
+    for (int i=0; i<c.size(); i++)
+        x = wab.read(c.key(i).str());
     
+    cout << x << endl;
     return 0;
 }
