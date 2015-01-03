@@ -55,3 +55,13 @@ set_target_properties(ldif-lib
   )
 target_link_libraries(ldif-lib card)
 list(APPEND MODULE_TARGETS ldif-lib)
+
+# Testing
+enable_testing()
+add_executable(test-card test-card.cpp)
+target_link_libraries(test-card ${TARGET_LIBS})
+add_test(
+  NAME card
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/test-card.cmake
+  )
+
