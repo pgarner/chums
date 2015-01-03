@@ -107,9 +107,9 @@ namespace libvar
     /**
      * The factory
      */
-    void factory(varfile** oFile)
+    void factory(Module** oModule, var iArg)
     {
-        *oFile = new WAB;
+        *oModule = new WAB;
     }
 }
 

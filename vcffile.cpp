@@ -70,9 +70,9 @@ namespace libvar
     /**
      * The factory
      */
-    void factory(varfile** oFile)
+    void factory(Module** oModule, var iArg)
     {
-        *oFile = new VCard;
+        *oModule = new VCard;
     }
 }
 
