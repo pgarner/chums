@@ -19,8 +19,8 @@ namespace libvar
     {
     public:
         WAB();
-        virtual var read(const char* iFile);
-        virtual void write(const char* iFile, var iVar);
+        virtual var read(var iFile);
+        virtual void write(var iFile, var iVar);
 
     private:
         void doElement(var iElem);
@@ -430,7 +430,7 @@ void WAB::doElement(var iElem)
 }
 
 
-var WAB::read(const char* iFile)
+var WAB::read(var iFile)
 {
     // Read the XML file
     vfile mscontact("xml");
@@ -448,6 +448,6 @@ var WAB::read(const char* iFile)
 }
 
 
-void WAB::write(const char* iFile, var iVar)
+void WAB::write(var iFile, var iVar)
 {
 }

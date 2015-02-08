@@ -21,8 +21,8 @@ namespace libvar
     {
     public:
         VCard();
-        virtual var read(const char* iFile);
-        virtual void write(const char* iFile, var iVar);
+        virtual var read(var iFile);
+        virtual void write(var iFile, var iVar);
 
     private:
         void doLine(var iLine);
@@ -284,10 +284,10 @@ void VCard::doAttr(var iQuad, var iAttr)
     }
 }
 
-var VCard::read(const char* iFile)
+var VCard::read(var iFile)
 {
     // Open the file
-    std::ifstream is(iFile);
+    std::ifstream is(iFile.str());
     if (is.fail())
         throw std::runtime_error("VCard::read: Open failed");
 
@@ -319,13 +319,13 @@ var VCard::read(const char* iFile)
 }
 
 
-void VCard::write(const char* iFile, var iVar)
+void VCard::write(var iFile, var iVar)
 {
     // vCards are required to use CRLF as line ends.  The natural line end is
     // machine dependent ('\n' is translated in text mode to the right thing).
     // Rather, guarantee CRLF by opening in binary mode and writing CRLF
     // explicitly.  https://en.wikipedia.org/wiki/Newline
-    std::ofstream os(iFile, std::ofstream::out | std::ofstream::binary);
+    std::ofstream os(iFile.str(), std::ofstream::out | std::ofstream::binary);
     if (os.fail())
         throw std::runtime_error("vcffile::write(): Open failed");
 

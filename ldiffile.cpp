@@ -24,8 +24,8 @@ namespace libvar
     {
     public:
         LDIF();
-        virtual var read(const char* iFile);
-        virtual void write(const char* iFile, var iVar);
+        virtual var read(var iFile);
+        virtual void write(var iFile, var iVar);
 
     private:
         void doLine(var iLine);
@@ -259,10 +259,10 @@ void LDIF::doLine(var iLine)
 }
 
 
-var LDIF::read(const char* iFile)
+var LDIF::read(var iFile)
 {
     // Open the file
-    std::ifstream is(iFile);
+    std::ifstream is(iFile.str());
     if (is.fail())
         throw std::runtime_error("LDIF::read: Open failed");
 
@@ -277,6 +277,6 @@ var LDIF::read(const char* iFile)
 }
 
 
-void LDIF::write(const char* iFile, var iVar)
+void LDIF::write(var iFile, var iVar)
 {
 }
