@@ -125,7 +125,7 @@ void LDIF::doLine(var iLine)
     if (!mTokenMap.index(s[0]))
     {
         std::cout << s[0] << std::endl;
-        throw std::runtime_error("LDIF::doLine: Unknown token");
+        throw error("LDIF::doLine: Unknown token");
     }
 
     // The Mozilla stuff defaults to "work"; i.e., L, C, STREET etc.  The
@@ -254,7 +254,7 @@ void LDIF::doLine(var iLine)
     default:
         std::cout << "Unhandled: " << s[0] << std::endl;
         std::cout << s << std::endl;
-        throw std::runtime_error("LDIF::doLine: Unhandled token");        
+        throw error("LDIF::doLine: Unhandled token");        
     }
 }
 
@@ -264,7 +264,7 @@ var LDIF::read(var iFile)
     // Open the file
     std::ifstream is(iFile.str());
     if (is.fail())
-        throw std::runtime_error("LDIF::read: Open failed");
+        throw error("LDIF::read: Open failed");
 
     // Basic scan over file
     var line;

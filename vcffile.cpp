@@ -131,7 +131,7 @@ void VCard::doLine(var iLine)
     if (!mTokenMap.index(t))
     {
         std::cout << t << std::endl;
-        throw std::runtime_error("VCard::doLine: Unknown token");
+        throw error("VCard::doLine: Unknown token");
     }
 
     var q;
@@ -212,7 +212,7 @@ void VCard::doLine(var iLine)
         break;
     default:
         std::cout << "Unhandled: " << s[0] << std::endl;
-        throw std::runtime_error("VCard::doLine: Unhandled token");        
+        throw error("VCard::doLine: Unhandled token");        
     }
 }
 
@@ -225,7 +225,7 @@ void VCard::doAttr(var iQuad, var iAttr)
         if (!mAttrMap.index(t))
         {
             std::cout << t << std::endl;
-            throw std::runtime_error("VCard::doAttr: Unknown token");
+            throw error("VCard::doAttr: Unknown token");
         }
 
         var tmp;
@@ -279,7 +279,7 @@ void VCard::doAttr(var iQuad, var iAttr)
             break;
         default:
             std::cout << "Unhandled: " << iAttr << std::endl;
-            throw std::runtime_error("VCard::doAttr: Unhandled token");
+            throw error("VCard::doAttr: Unhandled token");
         }
     }
 }
@@ -289,7 +289,7 @@ var VCard::read(var iFile)
     // Open the file
     std::ifstream is(iFile.str());
     if (is.fail())
-        throw std::runtime_error("VCard::read: Open failed");
+        throw error("VCard::read: Open failed");
 
     // Read it.  vCard lines that begin with a space are continuations of the
     // previous line, at least in the later versions, so deal with that before
@@ -327,7 +327,7 @@ void VCard::write(var iFile, var iVar)
     // explicitly.  https://en.wikipedia.org/wiki/Newline
     std::ofstream os(iFile.str(), std::ofstream::out | std::ofstream::binary);
     if (os.fail())
-        throw std::runtime_error("vcffile::write(): Open failed");
+        throw error("vcffile::write(): Open failed");
 
     var v = var(iVar);
     for (int i=0; i<v.size(); i++)
@@ -338,7 +338,7 @@ void VCard::writeCard(std::ofstream& iOS, var iVar)
 {
     static char crlf[] = "\r\n";
     if (iVar[0] != "vcard")
-        throw std::runtime_error("vcffile::writeCard(): Not a vCard");
+        throw error("vcffile::writeCard(): Not a vCard");
     iOS << "BEGIN:VCARD" << crlf;
     for (int i=0; i<iVar[1].size(); i++)
     {

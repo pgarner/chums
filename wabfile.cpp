@@ -191,7 +191,7 @@ void WAB::doElement(var iElem)
     if (!mTokenMap.index(name))
     {
         std::cout << iElem.at("name") << std::endl;
-        throw std::runtime_error("WAB::doElement: Unknown token");
+        throw error("WAB::doElement: Unknown token");
     }
 
     var q;
@@ -202,7 +202,7 @@ void WAB::doElement(var iElem)
         switch (mEntity)
         {
         case NIL:
-            throw std::runtime_error("WAB::doElement: Undefined VALUE entity");
+            throw error("WAB::doElement: Undefined VALUE entity");
         case CONTACTID:
             mQuad[3] = data[0];
             break;
@@ -218,7 +218,7 @@ void WAB::doElement(var iElem)
             mQuad[3] = data[0];
             break;
         default:
-            throw std::runtime_error("WAB::doElement: Unknown VALUE entity");
+            throw error("WAB::doElement: Unknown VALUE entity");
         }
         break;
     case LABELCOLLECTION:
@@ -229,7 +229,7 @@ void WAB::doElement(var iElem)
         if (!mLabelMap.index(data[0]))
         {
             std::cout << data[0] << std::endl;
-            throw std::runtime_error("WAB::doElement: Unknown LABEL token");
+            throw error("WAB::doElement: Unknown LABEL token");
         }
         switch (mLabelMap[data[0]].cast<int>())
         {
@@ -257,7 +257,7 @@ void WAB::doElement(var iElem)
             mQuad[0] = "bday";
             break;
         default:
-            throw std::runtime_error("WAB::doElement: Unknown LABEL");
+            throw error("WAB::doElement: Unknown LABEL");
         }
         break;
 
@@ -425,7 +425,7 @@ void WAB::doElement(var iElem)
 
     default:
         std::cout << "Unhandled: " << iElem.at("name") << std::endl;
-        throw std::runtime_error("WAB::doElement: Unhandled token");        
+        throw error("WAB::doElement: Unhandled token");        
     }
 }
 
@@ -438,7 +438,7 @@ var WAB::read(var iFile)
 
     // Walk the DOM
     if (contact.at("name") != "c:contact")
-        throw std::runtime_error("WAB::read: Not a contact");
+        throw error("WAB::read: Not a contact");
     var data = contact["data"];
     mCard.append();
     for (int i=0; i<data.size(); i++)
