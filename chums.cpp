@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     var c = p->dir();
 
     // load files into a WAB thang
-    vfile wab("wab");
+    file wab("wab");
     var x;
     for (int i=0; i<c.size(); i++)
         x = wab.read(c.key(i).str());

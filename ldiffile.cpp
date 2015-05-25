@@ -20,7 +20,7 @@ namespace libvar
      * ...actually probably quite tied to the type of LDIF that mozilla
      * exports.  That said, that's the file I want to parse.
      */
-    class LDIF : public varfile
+    class LDIF : public File
     {
     public:
         LDIF();

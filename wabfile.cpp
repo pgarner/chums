@@ -15,7 +15,7 @@ namespace libvar
     /**
      * Ad-hoc parser for Windows Address Book (wab.exe) files
      */
-    class WAB : public varfile
+    class WAB : public File
     {
     public:
         WAB();
@@ -433,7 +433,7 @@ void WAB::doElement(var iElem)
 var WAB::read(var iFile)
 {
     // Read the XML file
-    vfile mscontact("xml");
+    file mscontact("xml");
     var contact = mscontact.read(iFile);
 
     // Walk the DOM

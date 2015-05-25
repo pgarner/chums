@@ -17,7 +17,7 @@ namespace libvar
     /**
      * Ad-hoc parser for vCard files
      */
-    class VCard : public varfile
+    class VCard : public File
     {
     public:
         VCard();
