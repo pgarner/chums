@@ -14,9 +14,9 @@ export CXX=clang++
 
 export CPATH=~/local/include
 
-if [ ! -e FindLibVar.cmake ]
+if [ ! -e FindLibUBE.cmake ]
 then
-    wget https://github.com/pgarner/libvar/raw/master/cmake/FindLibVar.cmake
+    wget https://github.com/pgarner/libube/raw/master/cmake/FindLibUBE.cmake
 fi
 
 # This is the jCard spec

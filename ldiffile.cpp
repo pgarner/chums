@@ -8,11 +8,11 @@
  */
 
 #include <fstream>
-#include <var.h>
+#include <lube/var.h>
 
 #include "card.h"
 
-namespace libvar
+namespace libube
 {
     /**
      * Ad-hoc parser for LDIF files
@@ -76,7 +76,7 @@ namespace libvar
 }
 
 
-using namespace libvar;
+using namespace libube;
 
 
 LDIF::LDIF()

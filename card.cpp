@@ -8,7 +8,7 @@
  */
 
 #include "card.h"
-#include <lv.h>
+#include <lube.h>
 
 /*
  * Notes basically taken from http://tools.ietf.org/html/rfc6350
@@ -50,7 +50,7 @@
  * Phil: So, those 7 fields amount to six semicolons in the ADR field.
  */
 
-using namespace libvar;
+using namespace libube;
 
 var Card::append()
 {

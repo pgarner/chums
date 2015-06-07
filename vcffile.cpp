@@ -8,11 +8,11 @@
  */
 
 #include <fstream>
-#include <var.h>
+#include <lube/var.h>
 
 #include "card.h"
 
-namespace libvar
+namespace libube
 {
     /**
      * Ad-hoc parser for vCard files
@@ -77,7 +77,7 @@ namespace libvar
 }
 
 
-using namespace libvar;
+using namespace libube;
 
 
 VCard::VCard()

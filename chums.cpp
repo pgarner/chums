@@ -7,22 +7,22 @@
  *   Phil Garner, September 2014
  */
 
-#include <lv.h>
-#include <varpath.h>
+#include <lube.h>
+#include <lube/path.h>
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
     // Should use $HOME here
-    lv::module m("path");
-    lv::path* p = lv::create(m, "/home/phil/Dropbox/Contacts");
+    lube::module m("path");
+    lube::path* p = lube::create(m, "/home/phil/Dropbox/Contacts");
 
     // Get a diretory listing
     var c = p->dir();
 
     // load files into a WAB thang
-    file wab("wab");
+    lube::file wab("wab");
     var x;
     for (int i=0; i<c.size(); i++)
         x = wab.read(c.key(i).str());

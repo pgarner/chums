@@ -15,16 +15,16 @@ set(VERSION 0.1)
 set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++11")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
-find_package(LibVar REQUIRED)
-include_directories(${LIBVAR_INCLUDE_DIR})
-set(TARGET_LIBS ${LIBVAR_LIBRARIES})
+find_package(LibUBE REQUIRED)
+include_directories(${LIBUBE_INCLUDE_DIR})
+set(TARGET_LIBS ${LIBUBE_LIBRARIES})
 
 # Card library
 add_library(card SHARED card.cpp)
 set_target_properties(card
   PROPERTIES OUTPUT_NAME "card"
   PUBLIC_HEADER "card.h"
-  INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/libvar"
+  INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/lube"
   )
 target_link_libraries(card ${TARGET_LIBS})
 

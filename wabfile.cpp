@@ -7,10 +7,10 @@
  *   Phil Garner, September 2014
  */
 
-#include <var.h>
+#include <lube/var.h>
 #include "card.h"
 
-namespace libvar
+namespace libube
 {
     /**
      * Ad-hoc parser for Windows Address Book (wab.exe) files
@@ -115,7 +115,7 @@ namespace libvar
 }
 
 
-using namespace libvar;
+using namespace libube;
 
 
 WAB::WAB()
@@ -433,7 +433,7 @@ void WAB::doElement(var iElem)
 var WAB::read(var iFile)
 {
     // Read the XML file
-    file mscontact("xml");
+    libube::file mscontact("xml");
     var contact = mscontact.read(iFile);
 
     // Walk the DOM

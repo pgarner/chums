@@ -10,9 +10,9 @@
 #ifndef CARD_H
 #define CARD_H
 
-#include <var.h>
+#include <lube/var.h>
 
-namespace libvar
+namespace libube
 {
     class Card
     {
