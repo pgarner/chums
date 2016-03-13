@@ -354,7 +354,11 @@ void VCard::writeCard(std::ofstream& iOS, var iVar)
         if (v[2] != "text")
             iOS << ";" << "VALUE=" << v[2].str();
         iOS << ":";
-        iOS << (v[3].atype() == TYPE_CHAR ? v[3].str() : v[3].join(";").str());
+        if (!v[3])
+            iOS << "null";
+        else
+            iOS << (v[3].atype() == TYPE_CHAR
+                    ? v[3].str() : v[3].join(";").str());
         iOS << crlf;
     }
     iOS << "END:VCARD" << crlf;

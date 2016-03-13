@@ -19,15 +19,19 @@ int main(int argc, char** argv)
     vcf.write("vcard-out.vcf", vcard);
     cout << "vCard: " << vcard << endl;
 
+    // Windoze Address Book
     lube::file wab("wab");
-    var contact = wab.read("example.contact");
+    var contact = wab.read(TEST_DIR "/test.contact");
     vcf.write("contact-out.vcf", contact);
     cout << "Contact: " << contact << endl;
 
+#if 0
+    // LDAP file
     lube::file ldif("ldif");
-    var ldap = ldif.read("example.ldif");
+    var ldap = ldif.read(TEST_DIR "/test.ldif");
     vcf.write("ldap-out.vcf", ldap);
     cout << "LDAP: " << ldap << endl;
-    
+#endif
+
     return 0;
 }

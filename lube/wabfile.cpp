@@ -47,6 +47,7 @@ namespace libube
             EMAILADDRESSCOLLECTION,
             EMAILADDRESS,
             ADDRESS,
+            TYPE,
 
             // Physical address
             PHYSICALADDRESSCOLLECTION,
@@ -80,6 +81,7 @@ namespace libube
             // Position
             POSITIONCOLLECTION,
             POSITION,
+            JOBTITLE,
             COMPANY,
 
             // Date
@@ -136,6 +138,7 @@ WAB::WAB()
     mTokenMap["c:EmailAddressCollection"] = EMAILADDRESSCOLLECTION;
     mTokenMap["c:EmailAddress"] = EMAILADDRESS;
     mTokenMap["c:Address"] = ADDRESS;
+    mTokenMap["c:Type"] = TYPE;
 
     mTokenMap["c:PhysicalAddressCollection"] = PHYSICALADDRESSCOLLECTION;
     mTokenMap["c:PhysicalAddress"] = PHYSICALADDRESS;
@@ -163,6 +166,7 @@ WAB::WAB()
 
     mTokenMap["c:PositionCollection"] = POSITIONCOLLECTION;
     mTokenMap["c:Position"] = POSITION;
+    mTokenMap["c:JobTitle"] = JOBTITLE;
     mTokenMap["c:Company"] = COMPANY;
 
     mTokenMap["c:DateCollection"] = DATECOLLECTION;
@@ -299,6 +303,9 @@ void WAB::doElement(var iElem)
     case ADDRESS:
         mQuad[3] = data[0];
         break;
+    case TYPE:
+        // EMail address type
+        break;
 
     case PHYSICALADDRESSCOLLECTION:
         mEntity = NIL;
@@ -402,6 +409,9 @@ void WAB::doElement(var iElem)
         mQuad = mCard.quad("org");
         for (int i=0; i<data.size(); i++)
             doElement(data[i]);
+        break;
+    case JOBTITLE:
+        // Job Title
         break;
     case COMPANY:
         mQuad[3] = data[0];
