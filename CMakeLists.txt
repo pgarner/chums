@@ -19,49 +19,13 @@ find_package(LibUBE REQUIRED)
 include_directories(${LIBUBE_INCLUDE_DIR})
 set(TARGET_LIBS ${LIBUBE_LIBRARIES})
 
-# Card library
-add_library(card SHARED card.cpp)
-set_target_properties(card
-  PROPERTIES OUTPUT_NAME "card"
-  PUBLIC_HEADER "card.h"
-  INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/lube"
-  )
-target_link_libraries(card ${TARGET_LIBS})
+# Modules & library
+add_subdirectory(lube)
 
 # Main executable
 add_executable(chums chums.cpp)
-target_link_libraries(chums ${TARGET_LIBS})
+target_link_libraries(chums card-shared)
 
-# The Windows Address Book module
-add_library(wab-lib MODULE wabfile.cpp)
-set_target_properties(wab-lib
-  PROPERTIES OUTPUT_NAME "wab"
-  )
-target_link_libraries(wab-lib card)
-list(APPEND MODULE_TARGETS wab-lib)
-
-# The vCard module
-add_library(vcf-lib MODULE vcffile.cpp)
-set_target_properties(vcf-lib
-  PROPERTIES OUTPUT_NAME "vcf"
-  )
-target_link_libraries(vcf-lib card)
-list(APPEND MODULE_TARGETS vcf-lib)
-
-# The LDIF module
-add_library(ldif-lib MODULE ldiffile.cpp)
-set_target_properties(ldif-lib
-  PROPERTIES OUTPUT_NAME "ldif"
-  )
-target_link_libraries(ldif-lib card)
-list(APPEND MODULE_TARGETS ldif-lib)
-
-# Testing
+# Tests
 enable_testing()
-add_executable(test-card test-card.cpp)
-target_link_libraries(test-card ${TARGET_LIBS})
-add_test(
-  NAME card
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/test-card.cmake
-  )
-
+add_subdirectory(test)

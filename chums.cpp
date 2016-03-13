@@ -14,19 +14,18 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    // Should use $HOME here
-    lube::module m("path");
-    lube::path* p = lube::create(m, "/home/phil/Dropbox/Contacts");
+    // Command line
+    var arg(argc, argv);
+    if (arg.size() != 3)
+        throw lube::error("Must have two arguments");
 
-    // Get a diretory listing
-    var c = p->dir();
+    // Start with a vCard
+    lube::file vcf("vcf");
+    var vcard = vcf.read(arg[1]);
 
-    // load files into a WAB thang
+    // Write another format
     lube::file wab("wab");
-    var x;
-    for (int i=0; i<c.size(); i++)
-        x = wab.read(c.key(i).str());
-    
-    cout << x << endl;
+    wab.write(arg[2], vcard);
+
     return 0;
 }

@@ -9,7 +9,7 @@
 
 # Set up the test to compare reference and output files
 set(CMD ./test-card)
-set(REF test-card-ref.txt)
+set(REF ${TEST_DIR}/test-card-ref.txt)
 set(OUT test-card-out.txt)
 
 # Run the test
