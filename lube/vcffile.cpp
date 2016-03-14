@@ -355,6 +355,7 @@ void VCard::writeCard(std::ofstream& iOS, var iVar)
             iOS << ";" << "VALUE=" << v[2].str();
         iOS << ":";
         if (!v[3])
+            // This case really shouldn't happen
             iOS << "null";
         else
             iOS << (v[3].atype() == TYPE_CHAR

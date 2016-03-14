@@ -8,6 +8,7 @@
  */
 
 #include <lube/var.h>
+#include <lube/data.h>
 #include "card.h"
 
 namespace libube
@@ -186,15 +187,15 @@ WAB::WAB()
 
 void WAB::doElement(var iElem)
 {
-    if (iElem.atype() != TYPE_PAIR)
+    if ((iElem.size() != 4) || (iElem[ELEM::TYPE] != "text"))
         // Not an element; probably whitespace
         return;
 
-    var name = iElem.at("name");
-    var data = iElem.at("data");
+    var name = iElem.at(ELEM::NAME);
+    var data = iElem.at(ELEM::DATA);
     if (!mTokenMap.index(name))
     {
-        std::cout << iElem.at("name") << std::endl;
+        std::cout << iElem.at(ELEM::NAME) << std::endl;
         throw error("WAB::doElement: Unknown token");
     }
 
@@ -208,18 +209,18 @@ void WAB::doElement(var iElem)
         case NIL:
             throw error("WAB::doElement: Undefined VALUE entity");
         case CONTACTID:
-            mQuad[3] = data[0];
+            mQuad[ELEM::DATA] = data[0];
             break;
         case URL:
-            mQuad[3] = data[0];
+            mQuad[ELEM::DATA] = data[0];
             break;
         case PHOTO:
             // Ignore photos for now
             //q = mCard.quad("photo");
-            //q[3] = data;
+            //q[ELEM::DATA] = data;
             break;
         case DATE:
-            mQuad[3] = data[0];
+            mQuad[ELEM::DATA] = data[0];
             break;
         default:
             throw error("WAB::doElement: Unknown VALUE entity");
@@ -258,7 +259,7 @@ void WAB::doElement(var iElem)
         case USERTILE:
             break;
         case BIRTHDAY:
-            mQuad[0] = "bday";
+            mQuad[ELEM::NAME] = "bday";
             break;
         default:
             throw error("WAB::doElement: Unknown LABEL");
@@ -267,11 +268,11 @@ void WAB::doElement(var iElem)
 
     case NOTES:
         mQuad = mCard.quad("note");
-        mQuad[3] = data[0];
+        mQuad[ELEM::DATA] = data[0];
         break;
     case CREATIONDATE:
         mQuad = mCard.quad("rev");
-        mQuad[3] = data[0];
+        mQuad[ELEM::DATA] = data[0];
         break;
     case EXTENDED:
         // Ignore this tag
@@ -301,7 +302,7 @@ void WAB::doElement(var iElem)
             doElement(data[i]);
         break;
     case ADDRESS:
-        mQuad[3] = data[0];
+        mQuad[ELEM::DATA] = data[0];
         break;
     case TYPE:
         // EMail address type
@@ -319,19 +320,19 @@ void WAB::doElement(var iElem)
             doElement(data[i]);
         break;
     case COUNTRY:
-        mQuad[3][6] = data[0];
+        mQuad[ELEM::DATA][6] = data[0];
         break;
     case POSTALCODE:
-        mQuad[3][5] = data[0];
+        mQuad[ELEM::DATA][5] = data[0];
         break;
     case REGION:
-        mQuad[3][4] = data[0];
+        mQuad[ELEM::DATA][4] = data[0];
         break;
     case LOCALITY:
-        mQuad[3][3] = data[0];
+        mQuad[ELEM::DATA][3] = data[0];
         break;
     case STREET:
-        mQuad[3][2] = data.join("");
+        mQuad[ELEM::DATA][2] = data.join("");
         break;
 
     case NAMECOLLECTION:
@@ -349,16 +350,16 @@ void WAB::doElement(var iElem)
         // Add an extra quad in the middle of assigning family and given names
         // to the NAME quad.  This might cause trouble if there is metadata.
         q = mCard.quad("fn");
-        q[3] = data[0];
+        q[ELEM::DATA] = data[0];
         break;
     case FAMILYNAME:
-        if (mQuad[3])
-            mQuad[3].unshift(data[0]);
+        if (mQuad[ELEM::DATA])
+            mQuad[ELEM::DATA].unshift(data[0]);
         else
-            mQuad[3][0] = data[0];
+            mQuad[ELEM::DATA][0] = data[0];
         break;
     case GIVENNAME:
-        mQuad[3].push(data[0]);
+        mQuad[ELEM::DATA].push(data[0]);
         break;
 
     case PHONENUMBERCOLLECTION:
@@ -373,7 +374,7 @@ void WAB::doElement(var iElem)
             doElement(data[i]);
         break;
     case NUMBER:
-        mQuad[3] = data[0];
+        mQuad[ELEM::DATA] = data[0];
         break;
 
     case PHOTOCOLLECTION:
@@ -414,7 +415,7 @@ void WAB::doElement(var iElem)
         // Job Title
         break;
     case COMPANY:
-        mQuad[3] = data[0];
+        mQuad[ELEM::DATA] = data[0];
         break;
 
     case DATECOLLECTION:
@@ -434,7 +435,7 @@ void WAB::doElement(var iElem)
         break;
 
     default:
-        std::cout << "Unhandled: " << iElem.at("name") << std::endl;
+        std::cout << "Unhandled: " << iElem.at(ELEM::NAME) << std::endl;
         throw error("WAB::doElement: Unhandled token");        
     }
 }
@@ -447,9 +448,9 @@ var WAB::read(var iFile)
     var contact = mscontact.read(iFile);
 
     // Walk the DOM
-    if (contact.at("name") != "c:contact")
+    if (contact.at(ELEM::NAME) != "c:contact")
         throw error("WAB::read: Not a contact");
-    var data = contact["data"];
+    var data = contact[ELEM::DATA];
     mCard.append();
     for (int i=0; i<data.size(); i++)
         doElement(data[i]);

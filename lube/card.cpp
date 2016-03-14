@@ -9,6 +9,7 @@
 
 #include "card.h"
 #include <lube.h>
+#include <lube/data.h>
 
 /*
  * Notes basically taken from http://tools.ietf.org/html/rfc6350
@@ -65,7 +66,7 @@ var Card::append()
     static var version = "version";
     static var v4 = "4.0";
     var q = quad(version);
-    q[3] = v4;
+    q[DATA] = v4;
     return mCards.top();
 }
 
@@ -73,9 +74,9 @@ var Card::quad(var iName)
 {
     static var text = "text";
     var q;
-    q[0] = iName;
+    q[NAME] = iName;
     q.resize(4);
-    q[2] = text;
+    q[TYPE] = text;
     mCards.top()[1].push(q);
     return q;
 }
@@ -87,10 +88,10 @@ var Card::name()
 {
     var qa = mCards.top()[1];
     for (int i=0; i<qa.size(); i++)
-        if (qa[i][0] == "n")
+        if (qa[i][NAME] == "n")
             return qa[i];
     var q = quad("n");
-    q[3].resize(5);
+    q[DATA].resize(5);
     return q;
 }
 
@@ -101,13 +102,13 @@ var Card::adr(var iType)
 {
     var qa = mCards.top()[1];
     for (int i=0; i<qa.size(); i++)
-        if (qa[i][0] == "adr")
+        if (qa[i][NAME] == "adr")
         {
             if (iType)
             {
-                if ( qa[i][1] &&
-                     qa[i][1].index("type") &&
-                     qa[i][1]["type"].index(iType) )
+                if ( qa[i][ATTR] &&
+                     qa[i][ATTR].index("type") &&
+                     qa[i][ATTR]["type"].index(iType) )
                     return qa[i];
             }
             else
@@ -115,7 +116,7 @@ var Card::adr(var iType)
         }
     var q = quad("adr");
     if (iType)
-        q[1]["type"].push(iType);
-    q[3].resize(7);
+        q[ATTR]["type"].push(iType);
+    q[DATA].resize(7);
     return q;
 }
