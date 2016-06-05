@@ -11,6 +11,7 @@
 #include <lube/path.h>
 
 using namespace std;
+using namespace lube;
 
 int main(int argc, char** argv)
 {
@@ -20,11 +21,13 @@ int main(int argc, char** argv)
         throw lube::error("Must have two arguments");
 
     // Start with a vCard
-    lube::file vcf("vcf");
+    filemodule vcfm("vcf");
+    file& vcf = vcfm.create();
     var vcard = vcf.read(arg[1]);
 
     // Write another format
-    lube::file wab("wab");
+    filemodule wabm("wab");
+    file& wab = wabm.create();
     wab.write(arg[2], vcard);
 
     return 0;

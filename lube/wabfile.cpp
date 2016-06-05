@@ -7,7 +7,7 @@
  *   Phil Garner, September 2014
  */
 
-#include <lube/var.h>
+#include <lube/module.h>
 #include <lube/data.h>
 #include "card.h"
 
@@ -16,7 +16,7 @@ namespace libube
     /**
      * Ad-hoc parser for Windows Address Book (wab.exe) files
      */
-    class WAB : public File
+    class WAB : public file
     {
     public:
         WAB();
@@ -444,8 +444,9 @@ void WAB::doElement(var iElem)
 var WAB::read(var iFile)
 {
     // Read the XML file
-    libube::file mscontact("xml");
-    var contact = mscontact.read(iFile);
+    libube::filemodule mscontact("xml");
+    file& msc = mscontact.create();
+    var contact = msc.read(iFile);
 
     // Walk the DOM
     if (contact.at(ELEM::NAME) != "c:contact")

@@ -8,7 +8,7 @@
  */
 
 #include <fstream>
-#include <lube/var.h>
+#include <lube/module.h>
 
 #include "card.h"
 
@@ -20,7 +20,7 @@ namespace libube
      * ...actually probably quite tied to the type of LDIF that mozilla
      * exports.  That said, that's the file I want to parse.
      */
-    class LDIF : public File
+    class LDIF : public file
     {
     public:
         LDIF();

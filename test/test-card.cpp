@@ -10,24 +10,28 @@
 #include <lube.h>
 
 using namespace std;
+using namespace lube;
 
 int main(int argc, char** argv)
 {
     // Start with a vCard
-    lube::file vcf("vcf");
+    filemodule vcfm("vcf");
+    file& vcf = vcfm.create();
     var vcard = vcf.read(TEST_DIR "/test.vcf");
     vcf.write("vcard-out.vcf", vcard);
     cout << "vCard: " << vcard << endl;
 
     // Windoze Address Book
-    lube::file wab("wab");
+    filemodule wabm("wab");
+    file& wab = wabm.create();
     var contact = wab.read(TEST_DIR "/test.contact");
     vcf.write("contact-out.vcf", contact);
     cout << "Contact: " << contact << endl;
 
 #if 0
     // LDAP file
-    lube::file ldif("ldif");
+    filemodule ldifm("ldif");
+    file& ldif = ldifm.create();
     var ldap = ldif.read(TEST_DIR "/test.ldif");
     vcf.write("ldap-out.vcf", ldap);
     cout << "LDAP: " << ldap << endl;

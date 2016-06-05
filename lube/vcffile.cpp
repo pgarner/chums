@@ -8,7 +8,7 @@
  */
 
 #include <fstream>
-#include <lube/var.h>
+#include <lube/module.h>
 
 #include "card.h"
 
@@ -17,7 +17,7 @@ namespace libube
     /**
      * Ad-hoc parser for vCard files
      */
-    class VCard : public File
+    class VCard : public file
     {
     public:
         VCard();
