@@ -8,9 +8,12 @@
 #   Phil Garner, March 2016
 #
 
-if [ ! -e FindLibUBE.cmake ]
+github=https://github.com/pgarner
+if [ ! -e cmake/FindLibUBE.cmake ]
 then
-    curl -LO https://github.com/pgarner/libube/raw/master/cmake/FindLibUBE.cmake
+    curl -LO $github/libube/raw/master/cmake/FindLibUBE.cmake
+    mkdir -p cmake
+    mv FindLibUBE.cmake cmake
 fi
 
 # This is the jCard spec
@@ -18,4 +21,3 @@ if [ ! -e rfc7095.txt ]
 then
     curl -LO http://tools.ietf.org/rfc/rfc7095.txt
 fi
-
